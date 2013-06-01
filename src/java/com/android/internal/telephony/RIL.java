@@ -25,6 +25,7 @@ import static android.telephony.TelephonyManager.NETWORK_TYPE_HSDPA;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_HSUPA;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_HSPA;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_HSPAP;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_DCHSPAP;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -209,6 +210,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
     static final String LOG_TAG = "RILJ";
     static final boolean RILJ_LOGD = true;
     static final boolean RILJ_LOGV = false; // STOP SHIP if true
+    protected boolean samsungDriverCall = false;
 
     /**
      * Wake lock timeout should be longer than the longest timeout in
@@ -3004,7 +3006,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
      *
      * @param rilVer is the version of the ril or -1 if disconnected.
      */
-    private void notifyRegistrantsRilConnectionChanged(int rilVer) {
+    protected void notifyRegistrantsRilConnectionChanged(int rilVer) {
         mRilVersion = rilVer;
         if (mRilConnectedRegistrants != null) {
             mRilConnectedRegistrants.notifyRegistrants(
@@ -3233,6 +3235,8 @@ public class RIL extends BaseCommands implements CommandsInterface {
             dc.als = p.readInt();
             voiceSettings = p.readInt();
             dc.isVoice = (0 == voiceSettings) ? false : true;
+            if(samsungDriverCall)
+                 p.readInt();
             dc.isVoicePrivacy = (0 != p.readInt());
             dc.number = p.readString();
             int np = p.readInt();
@@ -3448,6 +3452,8 @@ public class RIL extends BaseCommands implements CommandsInterface {
            radioType = NETWORK_TYPE_HSPA;
        } else if (radioString.equals("HSPAP")) {
            radioType = NETWORK_TYPE_HSPAP;
+       } else if (radioString.equals("DCHSPAP")) {
+           radioType = NETWORK_TYPE_DCHSPAP;
        } else {
            radioType = NETWORK_TYPE_UNKNOWN;
        }
